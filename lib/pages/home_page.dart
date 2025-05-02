@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:managekos/pages/add_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
