@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home Page"),
-        action: [
+        actions: [
           IconButton(
             onPressed: () => Navigator.pushNamed(context, '/add'),
             icon: Icon(Icons.add),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:managekos/pages/home_page.dart';
+import 'package:managekos/pages/login_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -10,10 +11,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: 'managekos',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       initialRoute: '/',
       routes: {
-        '/': (context) => HomePage(),
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
       },
       //home: Scaffold(body: Center(child: Text("helo"))),
     );
