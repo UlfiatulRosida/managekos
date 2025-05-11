@@ -28,17 +28,11 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () async {
-                  final email = 'email.text';
-                  final password = 'password.text';
+                onPressed: () {
+                  Navigator.pushNamed(context, '/home');
                 },
                 child: const Text('Login'),
               ),
-              const Text("Home Page"),
-              ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/home'),
-                  child: const Text("Home")),
-              const SizedBox(height: 8),
               TextButton(
                 onPressed: () {},
                 child: const Text('Belum punya akun? Daftar'),
