@@ -48,38 +48,42 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Daftar Kos Anda'),
-          actions: [
-            IconButton(
-              onPressed: () => Navigator.pushNamed(context, '/add'),
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
-        body: Center(
-          child: FutureBuilder(
-            future: manageKos,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) {
-                    final note = Note.fromJson(snapshot.data[index]);
-                    return ListTile(
-                      title: Text(note.name),
-                      subtitle: Text(note.description),
-                      onTap: () {},
-                    );
-                  },
-                );
-              } else if (snapshot.hasError) {
-                return const Text('Error');
-              } else {
-                return const CircularProgressIndicator();
-              }
-            },
+      appBar: AppBar(
+        title: const Text('Data Kos Anda'),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pushNamed(context, "/add"),
+            icon: const Icon(Icons.add),
           ),
-        ));
+          ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, "/add"),
+              child: Text("Add")),
+        ],
+      ),
+      body: Center(
+        child: FutureBuilder(
+          future: manageKos,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  final note = Note.fromJson(snapshot.data[index]);
+                  return ListTile(
+                    title: Text(note.name),
+                    subtitle: Text(note.description),
+                    onTap: () {},
+                  );
+                },
+              );
+            } else if (snapshot.hasError) {
+              return const Text('Error');
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ),
+      ),
+    );
   }
 }
