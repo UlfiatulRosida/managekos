@@ -1,31 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:managekos/pages/add_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future fetchNote() async {
   final supabase = Supabase.instance.client;
 
-  final data = await supabase.from('Datakos').select();
+  final data = await supabase.from('datakos').select();
   return data;
 }
 
 class Note {
   final String id;
   final String name;
-  final String description;
+  final String alamat;
 
   const Note({
     required this.id,
     required this.name,
-    required this.description,
+    required this.alamat,
   });
 
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
       id: json['id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String,
+      alamat: json['alamat'] as String,
     );
+  }
+}
+
+Future<void> addpage(
+  String name,
+  String alamat,
+) async {
+  final supabase = Supabase.instance.client;
+
+  final response = await supabase.from('datakos').insert({
+    'name': name,
+    'alamat': alamat,
+  });
+
+  if (response.error != null) {
+    throw Exception('Failed to add note: ${response.error!.message}');
   }
 }
 
@@ -68,13 +83,13 @@ class _HomePageState extends State<HomePage> {
                   final note = Note.fromJson(snapshot.data[index]);
                   return ListTile(
                     title: Text(note.name),
-                    subtitle: Text(note.description),
+                    subtitle: Text(note.alamat),
                     onTap: () {},
                   );
                 },
               );
             } else if (snapshot.hasError) {
-              return const Text('Error');
+              return const Text('');
             } else {
               return const CircularProgressIndicator();
             }
