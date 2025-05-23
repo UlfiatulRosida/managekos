@@ -6,7 +6,7 @@ class AddPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Tambah Kos")),
+      appBar: AppBar(title: Text("Kos Anda")),
       body: Padding(
           padding: const EdgeInsets.all(24),
           child: Center(
@@ -23,6 +23,27 @@ class AddPage extends StatelessWidget {
                 const TextField(
                   decoration: InputDecoration(
                     labelText: 'Alamat Kos',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Harga Kos',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Deskripsi Kos',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Jumlah Kamar',
                     border: OutlineInputBorder(),
                   ),
                 ),

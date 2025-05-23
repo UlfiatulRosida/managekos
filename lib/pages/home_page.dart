@@ -55,9 +55,6 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pushNamed(context, "/add"),
             icon: const Icon(Icons.add),
           ),
-          ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, "/add"),
-              child: Text("Add")),
         ],
       ),
       body: Center(
