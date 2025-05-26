@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:managekos/pages/home_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
@@ -9,35 +10,49 @@ class AddPage extends StatefulWidget {
 }
 
 class _AddPageState extends State<AddPage> {
+  Note? data;
+  bool initialized = false;
+
   final _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
-  final _alamatController = TextEditingController();
+  final TextEditingController NamaController = TextEditingController();
+  final TextEditingController _alamatController = TextEditingController();
 
-  bool isLoading = false;
+  String Nama = '';
+  String Alamat = '';
 
-  void _submitForm() async {
+  Future save() async {
+    final supabase = Supabase.instance.client;
+    String message = 'Berhasil menyimpan data kos';
+
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
+      if (data != null)
+        await supabase.from('DataKos').update({
+          'Nama': NamaController.text,
+          'Alamat': _alamatController.text,
+        }).eq('id', data!.id);
+      message = 'Berhasil mengupdate data kos';
+    } else {
+      await supabase.from('DataKos').insert({
+        'Nama': NamaController.text,
+        'Alamat': _alamatController.text,
       });
-
-      try {
-        await addpage(_namaController.text, _alamatController.text);
-        Navigator.pop(context);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan data: $e')),
-        );
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
-      }
     }
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+    Navigator.pop<String>(context, 'OK');
   }
 
   @override
   Widget build(BuildContext context) {
+    data = ModalRoute.of(context)?.settings.arguments as Note?;
+    if (data != null && !initialized) {
+      setState(() {
+        Nama = data!.name;
+        Alamat = data!.alamat;
+      });
+      initialized = true;
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Kos Anda')),
       body: Padding(
@@ -48,7 +63,7 @@ class _AddPageState extends State<AddPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: _namaController,
+                  controller: NamaController,
                   decoration: const InputDecoration(
                     labelText: 'Nama',
                     border: OutlineInputBorder(),
@@ -75,9 +90,7 @@ class _AddPageState extends State<AddPage> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
+                  onPressed: save,
                   child: const Text('Simpan'),
                 ),
               ],

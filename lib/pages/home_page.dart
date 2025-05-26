@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 Future fetchNote() async {
   final supabase = Supabase.instance.client;
 
-  final data = await supabase.from('datakos').select();
+  final data = await supabase.from('DataKos').select();
   return data;
 }
 
@@ -28,22 +28,6 @@ class Note {
   }
 }
 
-Future<void> addpage(
-  String name,
-  String alamat,
-) async {
-  final supabase = Supabase.instance.client;
-
-  final response = await supabase.from('datakos').insert({
-    'name': name,
-    'alamat': alamat,
-  });
-
-  if (response.error != null) {
-    throw Exception('Failed to add note: ${response.error!.message}');
-  }
-}
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -60,17 +44,20 @@ class _HomePageState extends State<HomePage> {
     manageKos = fetchNote();
   }
 
+  Future<void> _AddPage(BuildContext context, Note? note) async {
+    final result = await Navigator.pushNamed(context, '/add', arguments: note);
+    if (result == 'OK') {
+      setState(() {
+        manageKos = fetchNote();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Data Kos Anda'),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, "/add"),
-            icon: const Icon(Icons.add),
-          ),
-        ],
       ),
       body: Center(
         child: FutureBuilder(
@@ -84,17 +71,24 @@ class _HomePageState extends State<HomePage> {
                   return ListTile(
                     title: Text(note.name),
                     subtitle: Text(note.alamat),
-                    onTap: () {},
+                    onTap: () {
+                      _AddPage(context, note);
+                    },
                   );
                 },
               );
             } else if (snapshot.hasError) {
-              return const Text('');
-            } else {
-              return const CircularProgressIndicator();
+              return Text('${snapshot.error}');
             }
+            return const CircularProgressIndicator();
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _AddPage(context, null);
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
