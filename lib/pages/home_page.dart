@@ -10,19 +10,19 @@ Future fetchNote() async {
 
 class Note {
   final String id;
-  final String name;
+  final String nama;
   final String alamat;
 
   const Note({
     required this.id,
-    required this.name,
+    required this.nama,
     required this.alamat,
   });
 
   factory Note.fromJson(Map<String, dynamic> json) {
     return Note(
       id: json['id'] as String,
-      name: json['name'] as String,
+      nama: json['nama'] as String,
       alamat: json['alamat'] as String,
     );
   }
@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final note = Note.fromJson(snapshot.data[index]);
                   return ListTile(
-                    title: Text(note.name),
+                    title: Text(note.nama),
                     subtitle: Text(note.alamat),
                     onTap: () {
                       _AddPage(context, note);

@@ -25,22 +25,23 @@ class _AddPageState extends State<AddPage> {
     String message = 'Berhasil menyimpan data kos';
 
     if (_formKey.currentState!.validate()) {
-      if (data != null)
+      if (data != null) {
         await supabase.from('DataKos').update({
           'Nama': NamaController.text,
           'Alamat': _alamatController.text,
         }).eq('id', data!.id);
-      message = 'Berhasil mengupdate data kos';
-    } else {
-      await supabase.from('DataKos').insert({
-        'Nama': NamaController.text,
-        'Alamat': _alamatController.text,
-      });
-    }
+        message = 'Berhasil mengupdate data kos';
+      } else {
+        await supabase.from('DataKos').insert({
+          'Nama': NamaController.text,
+          'Alamat': _alamatController.text,
+        });
+      }
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-    Navigator.pop<String>(context, 'OK');
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      Navigator.pop<String>(context, 'OK');
+    }
   }
 
   @override
@@ -48,7 +49,7 @@ class _AddPageState extends State<AddPage> {
     data = ModalRoute.of(context)?.settings.arguments as Note?;
     if (data != null && !initialized) {
       setState(() {
-        Nama = data!.name;
+        Nama = data!.nama;
         Alamat = data!.alamat;
       });
       initialized = true;
@@ -56,46 +57,48 @@ class _AddPageState extends State<AddPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Kos Anda')),
       body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: NamaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama tidak boleh kosong';
-                    }
-                    return null;
-                  },
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: NamaController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama',
+                  border: OutlineInputBorder(),
                 ),
-                TextFormField(
-                  controller: _alamatController,
-                  decoration: const InputDecoration(
-                    labelText: 'Alamat',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Alamat tidak boleh kosong';
-                    }
-                    return null;
-                  },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nama tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _alamatController,
+                decoration: const InputDecoration(
+                  labelText: 'Alamat',
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: save,
-                  child: const Text('Simpan'),
-                ),
-              ],
-            ),
-          )),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Alamat tidak boleh kosong';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: save,
+                child: const Text('Simpan'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
