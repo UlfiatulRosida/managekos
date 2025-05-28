@@ -9,72 +9,99 @@ class AddPage extends StatefulWidget {
   State<AddPage> createState() => _AddPageState();
 }
 
+final supabase = Supabase.instance.client;
+
 class _AddPageState extends State<AddPage> {
-  Note? data;
-  bool initialized = false;
-
+  Kos? data;
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController NamaController = TextEditingController();
+  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
+  bool _isLoading = false;
 
-  String Nama = '';
-  String Alamat = '';
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
 
-  Future save() async {
-    final supabase = Supabase.instance.client;
-    String message = 'Berhasil menyimpan data kos';
+  Future<void> _fetchData() async {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is Kos) {
+      data = args;
+      _namaController.text = data!.nama;
+      _alamatController.text = data!.alamat;
+    }
+  }
 
-    if (_formKey.currentState!.validate()) {
+  Future<void> _saveData() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final supabase = Supabase.instance.client;
+      final nama = _namaController.text.trim();
+      final alamat = _alamatController.text.trim();
+
       if (data != null) {
-        await supabase.from('DataKos').update({
-          'Nama': NamaController.text,
-          'Alamat': _alamatController.text,
-        }).eq('id', data!.id);
-        message = 'Berhasil mengupdate data kos';
+        // Update existing data
+        await supabase
+            .from('DataKos')
+            .update({'nama': nama, 'alamat': alamat}).eq('id', data!.id);
       } else {
+        // Insert new data
         await supabase.from('DataKos').insert({
-          'Nama': NamaController.text,
-          'Alamat': _alamatController.text,
+          'nama': nama,
+          'alamat': alamat,
+          'created_at': DateTime.now().toIso8601String(),
         });
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
-      Navigator.pop<String>(context, 'OK');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(data != null
+                  ? 'Data berhasil diupdate'
+                  : 'Data berhasil ditambahkan')),
+        );
+        Navigator.pop(context, true); // Return true untuk trigger refresh
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
+  void dispose() {
+    _namaController.dispose();
+    _alamatController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    data = ModalRoute.of(context)?.settings.arguments as Note?;
-    if (data != null && !initialized) {
-      setState(() {
-        Nama = data!.nama;
-        Alamat = data!.alamat;
-      });
-      initialized = true;
-    }
     return Scaffold(
-      appBar: AppBar(title: const Text('Kos Anda')),
+      appBar: AppBar(title: const Text('Kelola Kos')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                controller: NamaController,
+                controller: _namaController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama',
+                  labelText: 'Nama Kos',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -83,17 +110,15 @@ class _AddPageState extends State<AddPage> {
                   labelText: 'Alamat',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Alamat tidak boleh kosong';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: save,
-                child: const Text('Simpan'),
+                onPressed: _isLoading ? null : _saveData,
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Simpan Data'),
               ),
             ],
           ),

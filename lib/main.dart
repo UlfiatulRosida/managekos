@@ -32,7 +32,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner:
           false, // Menonaktifkan banner debug yang biasanya muncul di pojok kanan atas
       theme: ThemeData(
-          primarySwatch: Colors.lightBlue,
+          primarySwatch: Colors.red,
           useMaterial3:
               true), // Mengatur tema aplikasi dengan warna biru sebagai primary swatch dan menggunakan Material 3
       initialRoute: '/', // Rute awal aplikasi, yaitu halaman login
