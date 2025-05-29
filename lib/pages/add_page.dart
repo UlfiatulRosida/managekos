@@ -39,7 +39,7 @@ class _AddPageState extends State<AddPage> {
   Future<void> _saveData() async {
     // Fungsi untuk menyimpan data kos
     if (!_formKey.currentState!.validate())
-      return; // Validasi form sebelum menyimpan data
+      ; // Validasi form sebelum menyimpan data
 
     setState(() => _isLoading =
         true); // Set status loading menjadi true untuk menampilkan indikator loading
@@ -97,6 +97,38 @@ class _AddPageState extends State<AddPage> {
     _namaController.dispose();
     _alamatController.dispose();
     super.dispose();
+  }
+
+  Future deleteData() async {
+    final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Konfirmasi Hapus'),
+            content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Hapus'),
+              ),
+            ],
+          );
+        });
+    if (confirmed == true) {
+      final supabase = Supabase.instance.client;
+      await supabase.from('DataKos').delete().eq('id', data?.id ?? '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(data != null
+                ? 'Data berhasil dihapus'
+                : 'Data tidak ditemukan')),
+      );
+      Navigator.pop(context, true); // Kembali ke halaman sebelumnya
+    }
   }
 
   @override
