@@ -97,7 +97,7 @@ class _AddPageState extends State<AddPage> {
               TextFormField(
                 controller: _namaController,
                 decoration: const InputDecoration(
-                  labelText: 'Nama Kos',
+                  labelText: 'Nama',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) =>
