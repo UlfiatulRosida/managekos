@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
       // MaterialApp adalah widget yang menyediakan struktur dasar untuk aplikasi Flutter
       // Mengatur judul aplikasi, banner debug, tema, dan rute awal
       title:
-          'managekos', // Judul aplikasi yang akan ditampilkan di taskbar atau launcher
+          'Managekos', // Judul aplikasi yang akan ditampilkan di taskbar atau launcher
       debugShowCheckedModeBanner:
           false, // Menonaktifkan banner debug yang biasanya muncul di pojok kanan atas
       theme: ThemeData(

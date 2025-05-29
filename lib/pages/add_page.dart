@@ -12,11 +12,14 @@ class AddPage extends StatefulWidget {
 final supabase = Supabase.instance.client;
 
 class _AddPageState extends State<AddPage> {
-  Kos? data;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaController = TextEditingController();
+  Kos? data; // Data kos yang akan ditambahkan atau diupdate
+  final _formKey = GlobalKey<
+      FormState>(); // Key untuk mengidentifikasi form dan melakukan validasi
+  final TextEditingController _namaController =
+      TextEditingController(); // Controller untuk mengelola input nama kos
   final TextEditingController _alamatController = TextEditingController();
-  bool _isLoading = false;
+  bool _isLoading =
+      false; // Status loading untuk menampilkan indikator saat proses simpan data
 
   @override
   void initState() {
@@ -34,11 +37,15 @@ class _AddPageState extends State<AddPage> {
   }
 
   Future<void> _saveData() async {
-    if (!_formKey.currentState!.validate()) return;
+    // Fungsi untuk menyimpan data kos
+    if (!_formKey.currentState!.validate())
+      return; // Validasi form sebelum menyimpan data
 
-    setState(() => _isLoading = true);
+    setState(() => _isLoading =
+        true); // Set status loading menjadi true untuk menampilkan indikator loading
 
     try {
+      // Mengambil instance Supabase client untuk berinteraksi dengan database
       final supabase = Supabase.instance.client;
       final nama = _namaController.text.trim();
       final alamat = _alamatController.text.trim();
@@ -58,6 +65,8 @@ class _AddPageState extends State<AddPage> {
       }
 
       if (mounted) {
+        // Cek apakah widget masih terpasang sebelum menampilkan snackbar
+        // Tampilkan snackbar untuk memberi tahu pengguna bahwa data berhasil disimpan
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(data != null
@@ -67,18 +76,24 @@ class _AddPageState extends State<AddPage> {
         Navigator.pop(context, true); // Return true untuk trigger refresh
       }
     } catch (e) {
+      // Tangani kesalahan jika terjadi saat menyimpan data
       if (mounted) {
+        // Cek apakah widget masih terpasang sebelum menampilkan snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(
+              content: Text(
+                  'Error: ${e.toString()}')), // Tampilkan snackbar dengan pesan error
         );
       }
     } finally {
+      // Set status loading menjadi false setelah proses selesai
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
+    // Dispose controller untuk menghindari memory leak
     _namaController.dispose();
     _alamatController.dispose();
     super.dispose();
@@ -91,19 +106,24 @@ class _AddPageState extends State<AddPage> {
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Form(
-          key: _formKey,
+          key:
+              _formKey, // Menggunakan key untuk form agar bisa melakukan validasi
           child: Column(
+            // Membuat kolom untuk menampung widget input
             children: [
               TextFormField(
+                // Input field untuk nama kos
                 controller: _namaController,
                 decoration: const InputDecoration(
                   labelText: 'Nama',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
+                validator: (value) => // Validasi input nama kos
+                    value?.isEmpty ?? true
+                        ? 'Nama wajib diisi'
+                        : null, // Jika kosong, tampilkan pesan error
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 16), // Jarak antar input
               TextFormField(
                 controller: _alamatController,
                 decoration: const InputDecoration(
@@ -115,10 +135,14 @@ class _AddPageState extends State<AddPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : _saveData,
-                child: _isLoading
-                    ? const CircularProgressIndicator()
-                    : const Text('Simpan Data'),
+                // Tombol untuk menyimpan data kos
+                onPressed: _isLoading
+                    ? null
+                    : _saveData, // Nonaktifkan tombol jika sedang loading
+                child:
+                    _isLoading // Tampilkan indikator loading jika sedang proses simpan data
+                        ? const CircularProgressIndicator()
+                        : const Text('Simpan Data'),
               ),
             ],
           ),
