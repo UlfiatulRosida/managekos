@@ -12,14 +12,11 @@ class AddPage extends StatefulWidget {
 final supabase = Supabase.instance.client;
 
 class _AddPageState extends State<AddPage> {
-  Kos? data; // Data kos yang akan ditambahkan atau diupdate
-  final _formKey = GlobalKey<
-      FormState>(); // Key untuk mengidentifikasi form dan melakukan validasi
-  final TextEditingController _namaController =
-      TextEditingController(); // Controller untuk mengelola input nama kos
+  Kos? data;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
-  bool _isLoading =
-      false; // Status loading untuk menampilkan indikator saat proses simpan data
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -37,21 +34,15 @@ class _AddPageState extends State<AddPage> {
   }
 
   Future<void> _saveData() async {
-    // Fungsi untuk menyimpan data kos
-    if (!_formKey.currentState!.validate())
-      ; // Validasi form sebelum menyimpan data
+    if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading =
-        true); // Set status loading menjadi true untuk menampilkan indikator loading
-
+    setState(() => _isLoading = true);
     try {
-      // Mengambil instance Supabase client untuk berinteraksi dengan database
       final supabase = Supabase.instance.client;
       final nama = _namaController.text.trim();
       final alamat = _alamatController.text.trim();
 
       if (data != null) {
-        // Update existing data
         await supabase
             .from('DataKos')
             .update({'nama': nama, 'alamat': alamat}).eq('id', data!.id);
@@ -65,41 +56,33 @@ class _AddPageState extends State<AddPage> {
       }
 
       if (mounted) {
-        // Cek apakah widget masih terpasang sebelum menampilkan snackbar
-        // Tampilkan snackbar untuk memberi tahu pengguna bahwa data berhasil disimpan
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(data != null
                   ? 'Data berhasil diupdate'
                   : 'Data berhasil ditambahkan')),
         );
-        Navigator.pop(context, true); // Return true untuk trigger refresh
+        Navigator.pop(context, true);
       }
     } catch (e) {
-      // Tangani kesalahan jika terjadi saat menyimpan data
       if (mounted) {
-        // Cek apakah widget masih terpasang sebelum menampilkan snackbar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Error: ${e.toString()}')), // Tampilkan snackbar dengan pesan error
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     } finally {
-      // Set status loading menjadi false setelah proses selesai
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
-    // Dispose controller untuk menghindari memory leak
     _namaController.dispose();
     _alamatController.dispose();
     super.dispose();
   }
 
-  Future deleteData() async {
+  Future<void> deleteData() async {
     final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) {
@@ -134,50 +117,53 @@ class _AddPageState extends State<AddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kelola Kos')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key:
-              _formKey, // Menggunakan key untuk form agar bisa melakukan validasi
-          child: Column(
-            // Membuat kolom untuk menampung widget input
-            children: [
-              TextFormField(
-                // Input field untuk nama kos
-                controller: _namaController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama',
-                  border: OutlineInputBorder(),
+      appBar: AppBar(
+        title: Text("${(data != null) ? 'Edit' : 'buat'} Catatan"),
+        actions: (data != null)
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: deleteData, // Fungsi untuk menghapus data kos
                 ),
-                validator: (value) => // Validasi input nama kos
-                    value?.isEmpty ?? true
-                        ? 'Nama wajib diisi'
-                        : null, // Jika kosong, tampilkan pesan error
+              ]
+            : [],
+      ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _namaController,
+              decoration: const InputDecoration(
+                labelText: 'Nama',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16), // Jarak antar input
-              TextFormField(
-                controller: _alamatController,
-                decoration: const InputDecoration(
-                  labelText: 'Alamat',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
+              validator: (value) => // Validasi input nama kos
+                  value?.isEmpty ?? true
+                      ? 'Nama wajib diisi'
+                      : null, // Jika kosong, tampilkan pesan error
+            ),
+            const SizedBox(height: 16), // Jarak antar input
+            TextFormField(
+              controller: _alamatController,
+              decoration: const InputDecoration(
+                labelText: 'Alamat',
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                // Tombol untuk menyimpan data kos
-                onPressed: _isLoading
-                    ? null
-                    : _saveData, // Nonaktifkan tombol jika sedang loading
-                child:
-                    _isLoading // Tampilkan indikator loading jika sedang proses simpan data
-                        ? const CircularProgressIndicator()
-                        : const Text('Simpan Data'),
-              ),
-            ],
-          ),
+              validator: (value) =>
+                  value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _isLoading
+                  ? null
+                  : _saveData, // Nonaktifkan tombol jika sedang loading
+              child:
+                  _isLoading // Tampilkan indikator loading jika sedang proses simpan data
+                      ? const CircularProgressIndicator()
+                      : const Text('Simpan Data'),
+            ),
+          ],
         ),
       ),
     );

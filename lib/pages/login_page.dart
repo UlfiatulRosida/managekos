@@ -33,10 +33,6 @@ class LoginPage extends StatelessWidget {
                 },
                 child: const Text('Login'),
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Belum punya akun? Daftar'),
-              ),
             ],
           ),
         ),
