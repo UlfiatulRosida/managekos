@@ -1,6 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:managekos/pages/home_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+class Kos {
+  final String id;
+  final String nama;
+  final String alamat;
+
+  Kos({
+    required this.id,
+    required this.nama,
+    required this.alamat,
+  });
+
+  factory Kos.fromJson(Map<String, dynamic> json) {
+    return Kos(
+      id: json['id']?.toString() ?? '',
+      nama: json['nama']?.toString() ?? '',
+      alamat: json['alamat']?.toString() ?? '',
+    );
+  }
+}
 
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
@@ -9,14 +28,23 @@ class AddPage extends StatefulWidget {
   State<AddPage> createState() => _AddPageState();
 }
 
-final supabase = Supabase.instance.client;
-
 class _AddPageState extends State<AddPage> {
-  Kos? data;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _alamatController = TextEditingController();
-  bool _isLoading = false;
+  late Future<List<Kos>> _kosDataFuture;
+
+  Future<List<Kos>> fetchKosData() async {
+    try {
+      final response = await Supabase.instance.client.from('DataKos').select();
+      return (response as List).map((json) => Kos.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Gagal memuat data: $e');
+    }
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _kosDataFuture = fetchKosData();
+    });
+  }
 
   @override
   void initState() {
@@ -24,147 +52,49 @@ class _AddPageState extends State<AddPage> {
     _fetchData();
   }
 
-  Future<void> _fetchData() async {
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args != null && args is Kos) {
-      data = args;
-      _namaController.text = data!.nama;
-      _alamatController.text = data!.alamat;
-    }
-  }
-
-  Future<void> _saveData() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final supabase = Supabase.instance.client;
-      final nama = _namaController.text.trim();
-      final alamat = _alamatController.text.trim();
-
-      if (data != null) {
-        await supabase
-            .from('DataKos')
-            .update({'nama': nama, 'alamat': alamat}).eq('id', data!.id);
-      } else {
-        // Insert new data
-        await supabase.from('DataKos').insert({
-          'nama': nama,
-          'alamat': alamat,
-          'created_at': DateTime.now().toIso8601String(),
-        });
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(data != null
-                  ? 'Data berhasil diupdate'
-                  : 'Data berhasil ditambahkan')),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _namaController.dispose();
-    _alamatController.dispose();
-    super.dispose();
-  }
-
-  Future<void> deleteData() async {
-    final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Konfirmasi Hapus'),
-            content: const Text('Apakah Anda yakin ingin menghapus data ini?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Batal'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Hapus'),
-              ),
-            ],
-          );
-        });
-    if (confirmed == true) {
-      final supabase = Supabase.instance.client;
-      await supabase.from('DataKos').delete().eq('id', data?.id ?? '');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(data != null
-                ? 'Data berhasil dihapus'
-                : 'Data tidak ditemukan')),
-      );
-      Navigator.pop(context, true); // Kembali ke halaman sebelumnya
+  Future<void> _openAddPage(BuildContext context, Kos? kos) async {
+    final result = await Navigator.pushNamed(context, '/edit', arguments: kos);
+    if (result == true) {
+      _fetchData();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${(data != null) ? 'Edit' : 'buat'} Catatan"),
-        actions: (data != null)
-            ? [
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: deleteData, // Fungsi untuk menghapus data kos
-                ),
-              ]
-            : [],
+      appBar: AppBar(title: const Text('Data Kos Anda')),
+      floatingActionButton: FloatingActionButton(
+        // Tombol aksi
+        onPressed: () {
+          _openAddPage(context, null);
+        },
+        child: const Icon(Icons.add),
       ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _namaController,
-              decoration: const InputDecoration(
-                labelText: 'Nama',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) => // Validasi input nama kos
-                  value?.isEmpty ?? true
-                      ? 'Nama wajib diisi'
-                      : null, // Jika kosong, tampilkan pesan error
-            ),
-            const SizedBox(height: 16), // Jarak antar input
-            TextFormField(
-              controller: _alamatController,
-              decoration: const InputDecoration(
-                labelText: 'Alamat',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : _saveData, // Nonaktifkan tombol jika sedang loading
-              child:
-                  _isLoading // Tampilkan indikator loading jika sedang proses simpan data
-                      ? const CircularProgressIndicator()
-                      : const Text('Simpan Data'),
-            ),
-          ],
-        ),
+      body: FutureBuilder<List<Kos>>(
+        future: _kosDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (snapshot.data!.isEmpty) {
+            return const Center(child: Text('Tidak ada data'));
+          }
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final kos = snapshot.data![index];
+              return Card(
+                child: ListTile(
+                  title: Text(kos.nama),
+                  subtitle: Text(kos.alamat),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

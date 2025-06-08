@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:managekos/pages/login_page.dart';
 import 'package:managekos/pages/home_page.dart';
 import 'package:managekos/pages/add_page.dart';
-//import 'package:managekos/pages/edit_page.dart';
+import 'package:managekos/pages/edit_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const String supabaseKey =
@@ -27,7 +27,7 @@ class MainApp extends StatelessWidget {
         '/': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
         '/add': (context) => const AddPage(),
-        //'/edit': (context) => const EditPage(),
+        '/edit': (context) => const EditPage(),
       },
     );
   }
