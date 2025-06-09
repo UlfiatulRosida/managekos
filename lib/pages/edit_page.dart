@@ -13,6 +13,7 @@ class _EditPageState extends State<EditPage> {
   Kos? data;
   late final TextEditingController _namaController;
   late final TextEditingController _alamatController;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -40,68 +41,83 @@ class _EditPageState extends State<EditPage> {
   Future save() async {
     if (_formKey.currentState!.validate()) {
       final supabase = Supabase.instance.client;
-      String message = 'Berhasil menyimpan catatan';
 
-      if (data != null) {
-        await supabase.from('DataKos').update({
-          'nama': _namaController.text,
-          'alamat': _alamatController.text
-        }).eq('id', data?.id ?? '');
-        message = 'Berhasil mengubah catatan';
-      } else {
-        await supabase.from('DataKos').insert({
-          'nama': _namaController.text,
-          'alamat': _alamatController.text,
-        });
+      try {
+        if (data != null && data!.id.isNotEmpty) {
+          await supabase.from('DataKos').update({
+            'nama': _namaController.text,
+            'alamat': _alamatController.text
+          }).eq('id', data!.id);
+        } else {
+          await supabase.from('DataKos').insert({
+            'nama': _namaController.text,
+            'alamat': _alamatController.text,
+          });
+        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data Berhasil Disimpan')),
+        );
+        Navigator.pop(context, true);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menyimpan data: $e')),
+        );
       }
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-      Navigator.pop<String>(context, 'OK');
     }
   }
 
   Future delete() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Hapus Data?'),
-          content: const Text('Data yang dihapus tidak dapat dikembalikan'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true) {
-      final supabase = Supabase.instance.client;
-      await supabase.from('DataKos').delete().eq('id', data?.id ?? '');
-
+    if (data == null || data!.id.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('berhasil menghapus catatan')));
-      Navigator.pop<String>(context, 'OK');
+        const SnackBar(content: Text('Data tidak valid untuk dihapus')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Data?'),
+        content: const Text('Data yang dihapus tidak dapat dikembalikan'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final supabase = Supabase.instance.client;
+      try {
+        await supabase.from('DataKos').delete().eq('id', data!.id);
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data Berhasil Dihapus')),
+        );
+        Navigator.pop(context, 'OK');
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus data: $e')),
+        );
+      }
     }
   }
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${(data != null) ? 'Edit' : 'Buat'} Catatan"),
+        title: Text((data != null) ? 'Edit' : 'Buat'),
         actions: (data != null)
             ? [
                 IconButton(icon: const Icon(Icons.delete), onPressed: delete),
@@ -133,7 +149,9 @@ class _EditPageState extends State<EditPage> {
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-                onPressed: save, child: const Text('Simpan Perubahan')),
+              onPressed: save,
+              child: const Text('Simpan'),
+            ),
           ],
         ),
       ),

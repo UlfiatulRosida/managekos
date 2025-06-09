@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:managekos/pages/edit_page.dart';
 
 class Kos {
   final String id;
@@ -33,7 +34,8 @@ class _AddPageState extends State<AddPage> {
 
   Future<List<Kos>> fetchKosData() async {
     try {
-      final response = await Supabase.instance.client.from('DataKos').select();
+      final response =
+          await Supabase.instance.client.from('DataKos').select().order('nama');
       return (response as List).map((json) => Kos.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Gagal memuat data: $e');
@@ -46,17 +48,22 @@ class _AddPageState extends State<AddPage> {
     });
   }
 
+  Future<void> _addPage(BuildContext context, Kos? kos) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const EditPage(),
+          settings: RouteSettings(arguments: kos),
+        ));
+    if (result == true) {
+      _fetchData();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchData();
-  }
-
-  Future<void> _openAddPage(BuildContext context, Kos? kos) async {
-    final result = await Navigator.pushNamed(context, '/edit', arguments: kos);
-    if (result == true) {
-      _fetchData();
-    }
   }
 
   @override
@@ -66,7 +73,7 @@ class _AddPageState extends State<AddPage> {
       floatingActionButton: FloatingActionButton(
         // Tombol aksi
         onPressed: () {
-          _openAddPage(context, null);
+          _addPage(context, null);
         },
         child: const Icon(Icons.add),
       ),
@@ -83,17 +90,22 @@ class _AddPageState extends State<AddPage> {
             return const Center(child: Text('Tidak ada data'));
           }
           return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final kos = snapshot.data![index];
-              return Card(
-                child: ListTile(
-                  title: Text(kos.nama),
-                  subtitle: Text(kos.alamat),
-                ),
-              );
-            },
-          );
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final kos = snapshot.data![index];
+                return Card(
+                  child: ListTile(
+                    title: Text(kos.nama),
+                    subtitle: Text(kos.alamat),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        _addPage(context, kos);
+                      },
+                    ),
+                  ),
+                );
+              });
         },
       ),
     );
