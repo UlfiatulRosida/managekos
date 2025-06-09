@@ -103,7 +103,7 @@ class _EditPageState extends State<EditPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data Berhasil Dihapus')),
         );
-        Navigator.pop(context, 'OK');
+        Navigator.pop<String>(context, 'OK');
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -117,14 +117,17 @@ class _EditPageState extends State<EditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text((data != null) ? 'Edit' : 'Buat'),
+        title: Text("${(data != null) ? 'Edit' : 'Buat'} Data Kos"),
         actions: (data != null)
             ? [
-                IconButton(icon: const Icon(Icons.delete), onPressed: delete),
+                IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: delete),
               ]
             : [],
       ),
-      body: Form(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         key: _formKey,
         child: Column(
           children: [
