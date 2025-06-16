@@ -67,64 +67,11 @@ class _EditPageState extends State<EditPage> {
     }
   }
 
-  Future delete() async {
-    if (data == null || data!.id.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data tidak valid untuk dihapus')),
-      );
-      return;
-    }
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Hapus Data?'),
-        content: const Text('Data yang dihapus tidak dapat dikembalikan'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      final supabase = Supabase.instance.client;
-      try {
-        await supabase.from('DataKos').delete().eq('id', data!.id);
-
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data Berhasil Dihapus')),
-        );
-        Navigator.pop<String>(context, 'OK');
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus data: $e')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("${(data != null) ? 'Edit' : 'Buat'} Data Kos"),
-        actions: (data != null)
-            ? [
-                IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: delete),
-              ]
-            : [],
+        title: Text(data != null ? 'Edit Kos' : 'Tambah Kos'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -134,7 +81,7 @@ class _EditPageState extends State<EditPage> {
             TextFormField(
               controller: _namaController,
               decoration: const InputDecoration(
-                labelText: 'Nama Kos',
+                labelText: 'Nama',
                 border: OutlineInputBorder(),
               ),
               validator: (value) =>
