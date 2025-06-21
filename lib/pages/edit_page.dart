@@ -75,34 +75,36 @@ class _EditPageState extends State<EditPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              controller: _namaController,
-              decoration: const InputDecoration(
-                labelText: 'Nama',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _namaController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _alamatController,
-              decoration: const InputDecoration(
-                labelText: 'Alamat',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _alamatController,
+                decoration: const InputDecoration(
+                  labelText: 'Alamat',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
               ),
-              validator: (value) =>
-                  value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: save,
-              child: const Text('Simpan'),
-            ),
-          ],
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: save,
+                child: const Text('Simpan'),
+              ),
+            ],
+          ),
         ),
       ),
     );

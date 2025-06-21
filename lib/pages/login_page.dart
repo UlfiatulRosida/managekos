@@ -63,8 +63,11 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         return Scaffold(
+          appBar: AppBar(
+            title: const Text("Login"),
+          ),
           body: ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 50),
             children: [
               const SizedBox(height: 24),
               TextField(
@@ -78,7 +81,8 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                keyboardType: TextInputType.emailAddress,
+                //obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'password',
                   border: OutlineInputBorder(),
