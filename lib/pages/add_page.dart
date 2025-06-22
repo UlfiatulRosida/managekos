@@ -6,8 +6,8 @@ class Kos {
   final String nama;
   final String alamat;
   final String kontakHp;
-  final String nomorKamar;
-  final String hargaSewa;
+  final int nomorKamar;
+  final int hargaSewa;
   final String tanggalMasuk;
 
   Kos({
@@ -23,12 +23,16 @@ class Kos {
   factory Kos.fromJson(Map<String, dynamic> json) {
     return Kos(
       id: json['id']?.toString() ?? '',
-      nama: json['nama_penghuni']?.toString() ?? '',
-      alamat: json['alamat_penghuni']?.toString() ?? '',
-      kontakHp: json['kontak_hp']?.toString() ?? '',
-      nomorKamar: json['nomor_kamar'] ?? 0,
-      hargaSewa: json['harga_sewa'] ?? 0,
-      tanggalMasuk: json['tanggal_masuk']?.toString() ?? '',
+      nama: json['nama']?.toString() ?? '',
+      alamat: json['alamat']?.toString() ?? '',
+      kontakHp: json['kontakHp']?.toString() ?? '',
+      nomorKamar: json['nomorKamar'] is int
+          ? json['nomorKamar']
+          : int.tryParse(json['nomorKamar'].toString()) ?? 0,
+      hargaSewa: json['hargaSewa'] is int
+          ? json['hargaSewa']
+          : int.tryParse(json['hargaSewa'].toString()) ?? 0,
+      tanggalMasuk: json['tanggalMasuk']?.toString() ?? '',
     );
   }
 }
@@ -102,7 +106,8 @@ class _AddPageState extends State<AddPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data berhasil dihapus')),
         );
-        Navigator.pop(context, 'OK');
+
+        await _fetchData(); // refresh data setelah dihapus
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -115,13 +120,18 @@ class _AddPageState extends State<AddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Kos')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+          backgroundColor: Colors.blueGrey,
+          foregroundColor: Colors.white,
+          title: const Text('Data Kos')),
       floatingActionButton: FloatingActionButton(
         // Tombol aksi
         onPressed: () {
           _addPage(context, null);
         },
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueGrey[50],
+        child: const Icon(Icons.add, color: Colors.blueAccent, size: 35),
       ),
       body: FutureBuilder<List<Kos>>(
         future: _kosDataFuture,
@@ -140,6 +150,7 @@ class _AddPageState extends State<AddPage> {
             itemBuilder: (context, index) {
               final kos = snapshot.data![index];
               return Card(
+                color: Colors.blueGrey[50],
                 child: ListTile(
                   title: Text(kos.nama),
                   subtitle: Text(
@@ -149,11 +160,11 @@ class _AddPageState extends State<AddPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        icon: const Icon(Icons.edit, color: Colors.blueAccent),
                         onPressed: () => _addPage(context, kos),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete, color: Colors.blueGrey),
                         onPressed: () => _delete(kos),
                       ),
                     ],

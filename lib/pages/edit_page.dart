@@ -65,8 +65,8 @@ class _EditPageState extends State<EditPage> {
             'nama': _namaController.text,
             'alamat': _alamatController.text,
             'kontakHp': _kontakHpController.text,
-            'nomorKamar': _nomorKamarController,
-            'hargaSewa': _hargaSewaController.text,
+            'nomorKamar': int.tryParse(_nomorKamarController.text) ?? 0,
+            'hargaSewa': int.tryParse(_hargaSewaController.text) ?? 0,
             'tanggalMasuk': _tanggalMasukController.text,
           }).eq('id', data!.id);
         } else {
@@ -95,7 +95,10 @@ class _EditPageState extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
+        foregroundColor: Colors.white,
         title: Text(data != null ? 'Edit data' : 'Tambah data'),
       ),
       body: Form(
@@ -112,7 +115,7 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _alamatController,
               decoration: const InputDecoration(
@@ -122,7 +125,7 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Alamat wajib diisi' : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _kontakHpController,
               decoration: const InputDecoration(
@@ -132,7 +135,7 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Kontak HP wajib diisi' : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _nomorKamarController,
               decoration: const InputDecoration(
@@ -142,7 +145,7 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Nomor Kamar wajib diisi' : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _hargaSewaController,
               decoration: const InputDecoration(
@@ -150,9 +153,9 @@ class _EditPageState extends State<EditPage> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Harga SEwa wajib diisi' : null,
+                  value?.isEmpty ?? true ? 'Harga Sewa wajib diisi' : null,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _tanggalMasukController,
               decoration: const InputDecoration(
@@ -162,10 +165,16 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Tanggal Masuk wajib diisi' : null,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blueGrey,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
               onPressed: save,
-              child: const Text('Simpan'),
+              child: const Text('Simpan',
+                  style: TextStyle(color: Colors.white, fontSize: 18)),
             ),
           ],
         ),

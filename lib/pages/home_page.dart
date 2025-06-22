@@ -8,6 +8,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
+        foregroundColor: Colors.white,
         title: const Text('Managekos'),
         actions: [
           IconButton(
@@ -29,6 +31,12 @@ class HomePage extends StatelessWidget {
             const Text('Selamat datang di Managekos!'),
             const SizedBox(height: 20),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueGrey,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
               onPressed: () {
                 Navigator.pushNamed(context, '/add');
               },
