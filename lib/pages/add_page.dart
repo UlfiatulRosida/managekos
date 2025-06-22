@@ -5,18 +5,30 @@ class Kos {
   final String id;
   final String nama;
   final String alamat;
+  final String kontakHp;
+  final String nomorKamar;
+  final String hargaSewa;
+  final String tanggalMasuk;
 
   Kos({
     required this.id,
     required this.nama,
     required this.alamat,
+    required this.kontakHp,
+    required this.nomorKamar,
+    required this.hargaSewa,
+    required this.tanggalMasuk,
   });
 
   factory Kos.fromJson(Map<String, dynamic> json) {
     return Kos(
       id: json['id']?.toString() ?? '',
-      nama: json['nama']?.toString() ?? '',
-      alamat: json['alamat']?.toString() ?? '',
+      nama: json['nama_penghuni']?.toString() ?? '',
+      alamat: json['alamat_penghuni']?.toString() ?? '',
+      kontakHp: json['kontak_hp']?.toString() ?? '',
+      nomorKamar: json['nomor_kamar'] ?? 0,
+      hargaSewa: json['harga_sewa'] ?? 0,
+      tanggalMasuk: json['tanggal_masuk']?.toString() ?? '',
     );
   }
 }
@@ -33,8 +45,10 @@ class _AddPageState extends State<AddPage> {
 
   Future<List<Kos>> fetchKosData() async {
     try {
-      final response =
-          await Supabase.instance.client.from('DataKos').select().order('nama');
+      final response = await Supabase.instance.client
+          .from('DataKos')
+          .select()
+          .order(' nama');
       return (response as List).map((json) => Kos.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Gagal memuat data: $e');
@@ -101,7 +115,7 @@ class _AddPageState extends State<AddPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Data Kos Anda')),
+      appBar: AppBar(title: const Text('Data Kos')),
       floatingActionButton: FloatingActionButton(
         // Tombol aksi
         onPressed: () {
@@ -128,7 +142,9 @@ class _AddPageState extends State<AddPage> {
               return Card(
                 child: ListTile(
                   title: Text(kos.nama),
-                  subtitle: Text(kos.alamat),
+                  subtitle: Text(
+                      'Alamat: ${kos.alamat}\nKontak: ${kos.kontakHp}\nKamar: ${kos.nomorKamar}\nHarga: Rp${kos.hargaSewa}\nMasuk: ${kos.tanggalMasuk}'),
+                  isThreeLine: true,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

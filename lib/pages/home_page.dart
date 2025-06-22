@@ -22,8 +22,20 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Selamat datang di Managekos!'),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Selamat datang di Managekos!'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/add');
+              },
+              child: const Text('Tambah Catatan'),
+            ),
+          ],
+        ),
       ),
     );
   }
