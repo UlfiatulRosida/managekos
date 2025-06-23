@@ -9,7 +9,7 @@ class Kos {
   final int nomorKamar;
   final int hargaSewa;
   final String tanggalMasuk;
-// Model untuk menyimpan data kos
+
   Kos({
     required this.id,
     required this.nama,
@@ -18,7 +18,7 @@ class Kos {
     required this.nomorKamar,
     required this.hargaSewa,
     required this.tanggalMasuk,
-  }); // Konstruktor untuk inisialisasi data kos
+  });
 
   factory Kos.fromJson(Map<String, dynamic> json) {
     return Kos(
@@ -33,7 +33,7 @@ class Kos {
           ? json['hargaSewa']
           : int.tryParse(json['hargaSewa'].toString()) ?? 0,
       tanggalMasuk: json['tanggalMasuk']?.toString() ?? '',
-    ); // Mengonversi JSON menjadi objek Kos
+    );
   }
 }
 
@@ -42,11 +42,10 @@ class AddPage extends StatefulWidget {
 
   @override
   State<AddPage> createState() => _AddPageState();
-} // Untuk mendefinisikan widget AddPage yang merupakan halaman untuk menambah atau mengedit data kos
+}
 
 class _AddPageState extends State<AddPage> {
-  late Future<List<Kos>>
-      _kosDataFuture; // Untuk menyimpan future yang akan memuat data kos
+  late Future<List<Kos>> _kosDataFuture;
 
   Future<List<Kos>> fetchKosData() async {
     try {
@@ -57,27 +56,27 @@ class _AddPageState extends State<AddPage> {
       return (response as List).map((json) => Kos.fromJson(json)).toList();
     } catch (e) {
       throw Exception('Gagal memuat data: $e');
-    } // Fungsi untuk mengambil data kos dari Supabase
+    }
   }
 
   Future<void> _fetchData() async {
     setState(() {
       _kosDataFuture = fetchKosData();
     });
-  } // Untuk memperbarui future dengan data kos terbaru
+  }
 
   @override
   void initState() {
     super.initState();
     _fetchData();
-  } // Inisialisasi state dengan memuat data kos saat halaman pertama kali dibuka
+  }
 
   Future<void> _addPage(BuildContext context, Kos? kos) async {
     final result = await Navigator.pushNamed(context, '/edit', arguments: kos);
     if (result == true) {
       _fetchData();
     }
-  } // Untuk membuka halaman edit atau tambah data kos
+  }
 
   Future<void> _delete(Kos kos) async {
     final confirmed = await showDialog<bool>(
@@ -96,18 +95,17 @@ class _AddPageState extends State<AddPage> {
           ),
         ],
       ),
-    ); // Menampilkan dialog konfirmasi sebelum menghapus data
+    );
 
     if (confirmed == true) {
       final supabase = Supabase.instance.client;
       try {
-        await supabase.from('DataKos').delete().eq(
-            'id', kos.id); // Menghapus data kos dari Supabase berdasarkan ID
+        await supabase.from('DataKos').delete().eq('id', kos.id);
 
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data berhasil dihapus')),
-        ); // Menampilkan snackbar konfirmasi setelah data berhasil dihapus
+        );
 
         await _fetchData(); // refresh data setelah dihapus
       } catch (e) {
@@ -115,7 +113,7 @@ class _AddPageState extends State<AddPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menghapus data: $e')),
         );
-      } // Menangani error jika terjadi kesalahan saat menghapus data
+      }
     }
   }
 
@@ -136,44 +134,30 @@ class _AddPageState extends State<AddPage> {
         child: const Icon(Icons.add, color: Colors.blueAccent, size: 35),
       ),
       body: FutureBuilder<List<Kos>>(
-        // FutureBuilder untuk menampilkan data kos
-        future: _kosDataFuture, // Menggunakan future yang telah diinisialisasi
+        future: _kosDataFuture,
         builder: (context, snapshot) {
-          // Builder untuk membangun UI berdasarkan status future
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Jika masih dalam proses loading
-            return const Center(
-                child:
-                    CircularProgressIndicator()); // Menampilkan indikator loading
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            // Jika terjadi error saat mengambil data
             return Center(child: Text('Error: ${snapshot.error}'));
-          } // Jika ada error, tampilkan pesan error
+          }
           if (snapshot.data!.isEmpty) {
             return const Center(child: Text('Tidak ada data'));
-          } // Jika data kosong, tampilkan pesan tidak ada data
+          }
           return ListView.builder(
-            // Untuk membangun daftar data kos
-            itemCount: snapshot
-                .data!.length, // Menghitung jumlah item yang akan ditampilkan
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              // Untuk membangun setiap item dalam daftar
-              final kos =
-                  snapshot.data![index]; // Mengambil data kos berdasarkan index
+              final kos = snapshot.data![index];
               return Card(
-                // Membungkus setiap item dalam Card untuk tampilan yang lebih baik
                 color: Colors.blueGrey[50],
                 child: ListTile(
-                  // Menampilkan data kos dalam ListTile
-                  title: Text(kos.nama), // Menampilkan informasi lengkap
+                  title: Text(kos.nama),
                   subtitle: Text(
                       'Alamat: ${kos.alamat}\nKontak: ${kos.kontakHp}\nKamar: ${kos.nomorKamar}\nHarga: Rp${kos.hargaSewa}\nMasuk: ${kos.tanggalMasuk}'),
-                  isThreeLine: true, // lebih dari satu baris untuk subtitle
+                  isThreeLine: true,
                   trailing: Row(
-                    // menampilkan tombol aksi di sebelah kanan
-                    mainAxisSize:
-                        MainAxisSize.min, // minimalkan ukuran icon/baris
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blueAccent),
