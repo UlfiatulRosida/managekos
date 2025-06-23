@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:managekos/pages/add_page.dart';
+import 'package:managekos/pages/add_page.dart'; // Untuk mengimpor halaman AddPage
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditPage extends StatefulWidget {
@@ -7,18 +7,19 @@ class EditPage extends StatefulWidget {
 
   @override
   State<EditPage> createState() => _EditPageState();
-}
+} // Untuk mendefinisikan widget EditPage yang merupakan halaman untuk mengedit data kos
 
 class _EditPageState extends State<EditPage> {
-  Kos? data;
+  Kos? data; // Untuk menyimpan data kos yang akan diedit
   late final TextEditingController _namaController;
   late final TextEditingController _alamatController;
   late final TextEditingController _kontakHpController;
   late final TextEditingController _nomorKamarController;
   late final TextEditingController _hargaSewaController;
-  late final TextEditingController _tanggalMasukController;
+  late final TextEditingController
+      _tanggalMasukController; // Kontroler untuk input teks
 
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // Untuk mengelola status form
 
   @override
   void initState() {
@@ -28,12 +29,17 @@ class _EditPageState extends State<EditPage> {
     _kontakHpController = TextEditingController();
     _nomorKamarController = TextEditingController();
     _hargaSewaController = TextEditingController();
-    _tanggalMasukController = TextEditingController();
+    _tanggalMasukController =
+        TextEditingController(); // Inisialisasi kontroler untuk input teks
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final args = ModalRoute.of(context)?.settings.arguments;
+      // Untuk memastikan data diambil setelah widget dibangun
+      final args = ModalRoute.of(context)
+          ?.settings
+          .arguments; // Mengambil argumen dari rute saat ini
       if (args is Kos) {
-        data = args;
+        // Memeriksa apakah argumen adalah objek Kos
+        data = args; // Menyimpan data kos yang akan diedit
         _namaController.text = data?.nama ?? '';
         _alamatController.text = data?.alamat ?? '';
         _kontakHpController.text = data!.kontakHp;
@@ -42,7 +48,7 @@ class _EditPageState extends State<EditPage> {
         _tanggalMasukController.text = data!.tanggalMasuk;
       }
     });
-  }
+  } // Untuk menginisialisasi kontroler dan mengambil data kos yang akan diedit
 
   @override
   void dispose() {
@@ -53,23 +59,31 @@ class _EditPageState extends State<EditPage> {
     _hargaSewaController.dispose();
     _tanggalMasukController.dispose();
     super.dispose();
-  }
+  } // Untuk membersihkan kontroler saat widget dihapus dari pohon widget
 
   Future<void> save() async {
+    // Untuk menyimpan data kos yang telah diisi atau diedit
     if (_formKey.currentState!.validate()) {
-      final supabase = Supabase.instance.client;
+      // Memeriksa apakah form valid
+      final supabase = Supabase.instance.client; // Inisialisasi klien Supabase
 
       try {
+        // Untuk menangani penyimpanan data kos
         if (data != null && data!.id.isNotEmpty) {
+          // jika data kos sudah ada
+          // Update data kos yang sudah ada
           await supabase.from('DataKos').update({
+            // Untuk memperbarui data kos
             'nama': _namaController.text,
             'alamat': _alamatController.text,
             'kontakHp': _kontakHpController.text,
-            'nomorKamar': int.tryParse(_nomorKamarController.text) ?? 0,
+            'nomorKamar': int.tryParse(_nomorKamarController.text) ??
+                0, // Mengonversi nomor kamar ke integer
             'hargaSewa': int.tryParse(_hargaSewaController.text) ?? 0,
             'tanggalMasuk': _tanggalMasukController.text,
-          }).eq('id', data!.id);
+          }).eq('id', data!.id); // Untuk memperbarui data berdasarkan ID
         } else {
+          // jika data kos belum ada (tambah data baru)
           await supabase.from('DataKos').insert({
             'nama': _namaController.text,
             'alamat': _alamatController.text,
@@ -77,14 +91,18 @@ class _EditPageState extends State<EditPage> {
             'nomorKamar': int.tryParse(_nomorKamarController.text) ?? 0,
             'hargaSewa': int.tryParse(_hargaSewaController.text) ?? 0,
             'tanggalMasuk': _tanggalMasukController.text,
-          });
+          }); // Untuk menyimpan data kos baru
         }
-        if (!mounted) return;
+        if (!mounted) {
+          return; // Memastikan widget masih terpasang sebelum menampilkan snackbar
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data Berhasil Disimpan')),
-        );
-        Navigator.pop(context, true);
+        ); // Menampilkan snackbar
+        Navigator.pop(context,
+            true); // Kembali ke halaman sebelumnya dengan mengirimkan nilai true
       } catch (e) {
+        // Menangani error jika terjadi kesalahan saat menyimpan data
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menyimpan data: $e')),
         );
@@ -99,23 +117,29 @@ class _EditPageState extends State<EditPage> {
       appBar: AppBar(
         backgroundColor: Colors.blueGrey,
         foregroundColor: Colors.white,
-        title: Text(data != null ? 'Edit data' : 'Tambah data'),
+        title: Text(data != null
+            ? 'Edit data'
+            : 'Tambah data'), // AppBar akan berubah sesuai dengan apakah data ada atau tidak
       ),
       body: Form(
-        key: _formKey,
+        key: _formKey, // Untuk mengelola status form
         child: ListView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(
+              16.0), // Untuk memberi jarak pada konten form
           children: [
+            // Untuk membuat form input data kos
             TextFormField(
+              // Untuk input nama kos
               controller: _namaController,
               decoration: const InputDecoration(
                 labelText: 'Nama',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(), // Untuk memberi border pada input
               ),
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Nama wajib diisi' : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(
+                height: 16), // Untuk memberi jarak vertikal antara input
             TextFormField(
               controller: _alamatController,
               decoration: const InputDecoration(
@@ -165,12 +189,14 @@ class _EditPageState extends State<EditPage> {
               validator: (value) =>
                   value?.isEmpty ?? true ? 'Tanggal Masuk wajib diisi' : null,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(
+                height:
+                    24), // Untuk memberi jarak vertikal sebelum tombol simpan
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.blueGrey,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: 14), //
               ),
               onPressed: save,
               child: const Text('Simpan',

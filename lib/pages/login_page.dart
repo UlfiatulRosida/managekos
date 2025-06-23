@@ -2,57 +2,71 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key}); // Untuk mendefinisikan widget login
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginPage> createState() =>
+      _LoginPageState(); // Untuk membuat state dari widget login
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final SupabaseClient supabase = Supabase.instance.client;
-  final _formKey = GlobalKey<FormState>();
+  // Untuk mendefinisikan state dari widget login
+  final SupabaseClient supabase =
+      Supabase.instance.client; // Inisialisasi klien Supabase untuk otentikasi
+  final _formKey = GlobalKey<FormState>(); // Untuk mengelola status form login
 
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _passwordController =
+      TextEditingController(); // Kontroler untuk input email dan password
 
-  bool _obscurePassword = true;
-  bool _isLoading = false;
+  bool _obscurePassword =
+      true; // Variabel boolean untuk menyembunyikan atau menampilkan password
+  bool _isLoading =
+      false; // untuk menandakan apakah proses login sedang berlangsung
 
   Future<void> login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return; // Validasi form jika tidak valid, proses diberhentikan
+    }
 
-    setState(() => _isLoading = true);
+    setState(() => _isLoading = true); // Menampilkan loading
 
     final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    final password = _passwordController
+        .text; // Mengambil nilai email dan password dari kontroler
 
     try {
       final response = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
-      );
+      ); // Mengirim permintaan login ke Supabase dengan email dan password
 
       if (response.session == null) {
         throw 'Login gagal, periksa kembali';
-      }
+      } // Memeriksa apakah sesi berhasil dibuat
 
-      if (!mounted) return;
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      if (!mounted) {
+        return; // Memastikan widget masih terpasang sebelum melakukan navigasi
+      }
+      Navigator.of(context).pushNamedAndRemoveUntil('/home',
+          (route) => false); // Jika login berhasil, navigasi ke halaman home
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login gagal: $e")),
       );
     } finally {
-      setState(() => _isLoading = false);
+      setState(() => _isLoading =
+          false); // Mengubah status loading menjadi false setelah proses login selesai
     }
   }
 
   @override
   void dispose() {
+    //
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
+  } // Untuk membersihkan kontroler saat widget dihapus dari pohon widget
 
   @override
   Widget build(BuildContext context) {
@@ -60,11 +74,12 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0), // memberi jarak
           child: Form(
-            key: _formKey,
+            key: _formKey, // untuk validasi
             child: ListView(
-              shrinkWrap: true,
+              // agar bisa scroll
+              shrinkWrap: true, // untuk menghindari overflow
               children: [
                 const Text(
                   "Login Admin",
@@ -75,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.blueGrey,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 16), //spasi vertikal 16 pixel
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
@@ -90,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Format email tidak valid';
                     }
                     return null;
-                  },
+                  }, // Validasi input email
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -113,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                       return 'Password minimal 8 karakter';
                     }
                     return null;
-                  },
+                  }, // Validasi input password
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
@@ -126,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text('Login',
                           style: TextStyle(color: Colors.white, fontSize: 18)),
-                ),
+                ), // Tombol untuk login
               ],
             ),
           ),
